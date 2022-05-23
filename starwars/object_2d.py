@@ -64,7 +64,8 @@ class Object2D:
         if(abs(self.impulse_y) < 0.01):
             self.impulse_y = 0
 
-        self.wrap_position(map_width, map_height)
+        # TODO: Proper implementation
+        # self.wrap_position(map_width, map_height)
 
     def wrap_position(self, map_width, map_height):
         if self.x + self.width / 2 > map_width:
@@ -82,3 +83,12 @@ class Object2D:
 
     def update(self):
         pass
+
+    def to_dict(self):
+        return {
+            "x": self.x,
+            "y": self.y,
+            "spd_x": self.velocity_x,
+            "spd_y": self.velocity_y,
+            "name": self.name
+        }

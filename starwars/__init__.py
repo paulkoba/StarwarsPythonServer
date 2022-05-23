@@ -1,9 +1,11 @@
 import time
+import configmanager
 
 from world import World
 
 def main():
-    w = World()
+    cfg = configmanager.ConfigManager("config.ini")
+    w = World(cfg)
 
     start_time = time.time()
 

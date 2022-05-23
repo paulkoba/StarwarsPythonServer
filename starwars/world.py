@@ -3,36 +3,24 @@ import json
 from time import sleep
 from asteroids import SmallAsteroid, BigAsteroid  
 from spaceship import Spaceship, Bullet
+from singleton import Singleton
+import asteroidfactory
 
-class World:
-    def __init__(self):
-        self.width = 1000
-        self.height = 1000
+class World(metaclass = Singleton):
+    def __init__(self, cfg):
+        self.cfg = cfg
+        self.width = cfg.safe_get("world", "width")
+        self.height = cfg.safe_get("world", "height")
         self.objects = []
-        self.objects.append(Spaceship())
+        self.objects.append(Spaceship(self.cfg))
         self.objects[0].shoot(250, 250)
-        self.generate_big_asteroids(10)
+        self.generate_big_asteroids(cfg.safe_get("world", "starting_asteroids"))
         self.tick_count = 0
         
     def generate_big_asteroids(self, number):
         ''' This algorithm generates asteroids in random positions with random velocities. '''
         for i in range(number):
-            x, y = 0, 0
-            while True:
-                x, y = random.randint(0, self.width), random.randint(0, self.height)
-                can_procceed = True
-
-                for obj in self.objects:
-                    if obj.check_collision_with_circle(x, y, obj.get_radius()):
-                        can_procceed = False
-                        break
-
-                if can_procceed:
-                    b = BigAsteroid()
-                    b.x, b.y = x, y
-                    b.velocity_x, b.velocity_y = random.random() * 10 - 5, random.random() * 10 - 5
-                    self.objects.append(b)
-                    break
+            self.objects.append(asteroidfactory.create(self.cfg, self.objects, BigAsteroid))
 
     def resolve_collisions(self):
         ''' This algorithm resolves collisions between objects. '''
@@ -80,7 +68,14 @@ class World:
 
         self.tick_count += 1
 
+    def to_dict(self):
+        return {
+            "tick_count": self.tick_count,
+            "objects": [obj.to_dict() for obj in self.objects],
+            "width": self.width,
+            "height": self.height,
+        }
+
     def toJSON(self):
-        ''' Converts game state to JSON. '''
-        return json.dumps(self, default=lambda o: o.__dict__, 
+        return json.dumps(self.to_dict(), default=lambda o: o.__dict__, 
             sort_keys=True, indent=4)

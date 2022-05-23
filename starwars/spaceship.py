@@ -1,4 +1,5 @@
 from object_2d import Object2D
+import uuid
 
 class Bullet(Object2D):
     def __init__(self, x:int, y:int, target_x:int, target_y:int, speed_multiplier:int = 5):
@@ -14,9 +15,9 @@ class Bullet(Object2D):
         self.name = "Bullet"
 
 class Spaceship(Object2D):
-    def __init__(self, x = 500, y = 500, id = 0):
-        super().__init__(48, 48)
-        self.mass = 10
+    def __init__(self, cfg, x = 500, y = 500, id = 0):
+        super().__init__(cfg.safe_get('spaceship', 'spaceship_width'), cfg.safe_get('spaceship', 'spaceship_width'))
+        self.mass = cfg.safe_get('spaceship', 'spaceship_mass')
         self.name = "Spaceship"
         self.x = x
         self.y = y
@@ -24,6 +25,7 @@ class Spaceship(Object2D):
         self.reload_time = 0
         self.remaining_ammo = 0
         self.id = id
+        self.private_key = uuid.uuid4()
 
     def shoot(self, target_x, target_y):
         if self.reload_time < 0.1:
@@ -37,4 +39,14 @@ class Spaceship(Object2D):
         if(self.reload_time < 0):
             self.reload_time = 0
 
-        
+    def to_dict(self):
+        return {
+            "x": self.x,
+            "y": self.y,
+            "spd_x": self.velocity_x,
+            "spd_y": self.velocity_y,
+            "bullets": [bullet.to_dict() for bullet in self.bullets],
+            "reload_time": self.reload_time,
+            "remaining_ammo": self.remaining_ammo,
+            "id": self.id
+        }
