@@ -1,3 +1,5 @@
+from borderstrategy import BorderStrategy, WrapStrategy, BounceStrategy, DefaultStrategy
+
 class Object2D:
     def __init__(self, width: int, height: int):
         self.width = width
@@ -11,6 +13,13 @@ class Object2D:
         self.impulse_y = 0
         self.mass = 1
         self.name = "Object2D"
+        self.max_speed = 5
+
+    def truncate_speed(self):
+        if(abs(self.velocity_x) > self.max_speed):
+            self.velocity_x = self.max_speed if self.velocity_x > 0 else -self.max_speed
+        if(abs(self.velocity_y) > self.max_speed):
+            self.velocity_y = self.max_speed if self.velocity_y > 0 else -self.max_speed
     
     def get_center(self):
         return self.x + self.width/2, self.y + self.height/2
@@ -39,15 +48,18 @@ class Object2D:
         nx = (self.get_center()[0] - other.get_center()[0]) / dist
         ny = (self.get_center()[1] - other.get_center()[1]) / dist
 
-        p = 2 * (nx * self.velocity_x + ny * self.velocity_y - nx * other.velocity_x - ny * other.velocity_y) / (self.mass + other.mass)
+        v1 = (self.velocity_x * (self.mass - other.mass) + 2 * other.mass * other.velocity_x) / (self.mass + other.mass)
+        v2 = (other.velocity_x * (other.mass - self.mass) + 2 * self.mass * self.velocity_x) / (self.mass + other.mass)
+        v3 = (self.velocity_y * (self.mass - other.mass) + 2 * other.mass * other.velocity_y) / (self.mass + other.mass)
+        v4 = (other.velocity_y * (other.mass - self.mass) + 2 * self.mass * self.velocity_y) / (self.mass + other.mass)
 
-        self.velocity_x -= p * other.mass * nx
-        self.velocity_y -= p * other.mass * ny
+        self.velocity_x, self.velocity_y = v1, v3
+        other.velocity_x, other.velocity_y = v2, v4
 
-        other.velocity_x += p * self.mass * nx
-        other.velocity_y += p * self.mass * ny
+        self.truncate_speed()
+        other.truncate_speed()
 
-    def move(self, map_width = 1000, map_height = 1000):
+    def move(self, map_width = 1000, map_height = 1000, border_strategy = BounceStrategy()):
         ''' Moves object by 1 frame without taking collisions into account. '''
         self.x += self.velocity_x
         self.y += self.velocity_y
@@ -64,19 +76,9 @@ class Object2D:
         if(abs(self.impulse_y) < 0.01):
             self.impulse_y = 0
 
-        # TODO: Proper implementation
-        # self.wrap_position(map_width, map_height)
+        border_strategy.execute(self, map_width, map_height)
 
-    def wrap_position(self, map_width, map_height):
-        if self.x + self.width / 2 > map_width:
-            self.x = -self.width / 2
-        elif self.x - self.width / 2 < 0:
-            self.x = map_width - self.width / 2
-
-        if self.y + self.height / 2 > map_height:
-            self.y = -self.height / 2
-        elif self.y - self.height / 2 < 0:
-            self.y = map_height - self.height / 2
+        
 
     def destroy(self, objects):
         print("Destroyed " + self.name + " at " + str(self.x) + ", " + str(self.y))

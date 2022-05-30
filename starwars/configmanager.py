@@ -1,5 +1,4 @@
 import configparser
-from email.policy import default
 
 class ConfigManager(configparser.ConfigParser):
     def __init__(self, config_file):
@@ -21,6 +20,7 @@ class ConfigManager(configparser.ConfigParser):
             'big_asteroid_width': 68,
             'big_asteroid_height': 60,
             'big_asteroid_mass': 10,
+            'border-strategy': 'bounce',
         }
 
     def safe_get(self, section, option):
