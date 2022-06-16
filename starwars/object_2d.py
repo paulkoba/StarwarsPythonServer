@@ -13,7 +13,7 @@ class Object2D:
         self.impulse_y = 0
         self.mass = 1
         self.name = "Object2D"
-        self.max_speed = 5
+        self.max_speed = 10
 
     def truncate_speed(self):
         if(abs(self.velocity_x) > self.max_speed):
@@ -55,9 +55,6 @@ class Object2D:
 
         self.velocity_x, self.velocity_y = v1, v3
         other.velocity_x, other.velocity_y = v2, v4
-
-        self.truncate_speed()
-        other.truncate_speed()
 
     def move(self, map_width = 1000, map_height = 1000, border_strategy = BounceStrategy()):
         ''' Moves object by 1 frame without taking collisions into account. '''

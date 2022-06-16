@@ -8,7 +8,7 @@ class ConfigManager(configparser.ConfigParser):
 
         # Set defaults
         self.defaults = {
-            'width' : 3000,
+            'width' : 1000,
             'height' : 1000,
             'starting_asteroids' : 10,
             'spaceship_width': 48,
@@ -20,7 +20,11 @@ class ConfigManager(configparser.ConfigParser):
             'big_asteroid_width': 68,
             'big_asteroid_height': 60,
             'big_asteroid_mass': 10,
-            'border-strategy': 'bounce',
+            'border_strategy': 'bounce',
+            'shield_duration': 100,
+            'auto_shooter_duration': 100,
+            'port': 8080,
+            'host': 'localhost',
         }
 
     def safe_get(self, section, option):

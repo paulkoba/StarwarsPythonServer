@@ -1,6 +1,7 @@
 import time
 import configmanager
 
+from worldfacade import WorldFacade
 from world import World
 
 def main():
